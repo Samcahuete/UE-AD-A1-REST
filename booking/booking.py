@@ -31,7 +31,7 @@ def get_bookings_by_userid(userid):
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     req = request.get_json()
-    validity = requests.get('http://172.16.132.100:3201/bookings/verification', data=req).json()
+    validity = requests.get('http://localhost:3201/bookings/verification', data=req).json()
     if not validity["validity"]:
         return make_response(jsonify({"error":"schedule doesn't exist"}),400)
     user_found = False
