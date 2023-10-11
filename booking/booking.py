@@ -31,7 +31,12 @@ def get_bookings_by_userid(userid):
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     req = request.get_json()
-    if not check_booking_validity(req):
+    #req = new_movie
+    validity = requests.get('http://172.16.132.100:3201/bookings/verification', data=req).json()
+    print(validity)
+
+    ##http://172.16.132.100:3201/bookings/verification
+    if not validity["validity"]:
         return make_response(jsonify({"error":"schedule doesn't exist"}),400)
     user_found = False
 
@@ -72,16 +77,41 @@ def add_booking(userid):
     return res
 
 
-def check_booking_validity(booking):
+@app.route("/bookings/verification", methods=['GET'])
+def check_booking_validity():
+    new_movie = request.get_json()
+    print("new_movie", new_movie)
     schedule = requests.get('http://172.16.132.100:3202/showtimes').json()
     print(schedule)
+    for single_schedule in schedule:
+        if single_schedule["date"] == new_movie["date"]:
+            for movie in single_schedule["movies"]:
+                if movie == new_movie["movieid"]:
+                    return make_response(jsonify({"validity": True}), 200)
+    return make_response(jsonify({"validity": False}), 200)
+
+"""
+{
+                "date": "20151201",
+                "movies": [
+                    "267eedb8-0f5d-42d5-8f43-72426b9fb3e6"
+                ]
+            }
+"""
+"""
     for single_schedule in schedule:
         if single_schedule["date"] == booking["date"]:
             for movie in single_schedule["movies"]:
                 if movie == booking["movieid"]:
                     return True
     return False
-
+"""
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
    app.run(host=HOST, port=PORT)
+
+
+
+
+
+

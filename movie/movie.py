@@ -26,7 +26,13 @@ def new_endpoint():
     res = make_response("<h1 style='color:red'>Nouveau point d'entrée</h1>",200)
     return res
 
-
+@app.route("/movies/<movieid>", methods=['GET'])
+def get_movie_byid(movieid):
+    for movie in movies:
+        if str(movie["id"]) == str(movieid):
+            res = make_response(jsonify(movie),200)
+            return res
+    return make_response(jsonify({"error":"Movie ID not found"}),400)
 @app.route("/movies/<movieid>", methods=['POST'])
 def create_movie(movieid):
     req = request.get_json()
@@ -37,6 +43,26 @@ def create_movie(movieid):
 
     movies.append(req)
     res = make_response(jsonify({"message":"movie added"}),200)
+    return res
+
+def update_movie_rating(movieid, rate):
+    for movie in movies:
+        if str(movie["id"]) == str(movieid):
+            movie["rating"] = int(rate)
+            res = make_response(jsonify(movie),200)
+            return res
+
+    res = make_response(jsonify({"error":"movie ID not found"}),201)
+    return res
+
+@app.route("/movies/<movieid>", methods=['DELETE'])
+def del_movie(movieid):
+    for movie in movies:
+        if str(movie["id"]) == str(movieid):
+            movies.remove(movie)
+            return make_response(jsonify(movie),200)
+
+    res = make_response(jsonify({"error":"movie ID not found"}),400)
     return res
 
 if __name__ == "__main__":
