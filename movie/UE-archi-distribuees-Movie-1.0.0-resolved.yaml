@@ -122,7 +122,7 @@ paths:
           description: item deleted
         "400":
           description: ID not found
-  /titles:
+  /titles/{title}:
     get:
       tags:
       - developers

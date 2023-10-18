@@ -34,7 +34,7 @@ paths:
       tags:
       - developers
       summary: get the full JSON database
-      operationId: get_schedule
+      operationId: get_json
       responses:
         "200":
           description: full JSON
@@ -47,7 +47,7 @@ paths:
       tags:
       - developers
       summary: get the schedule by date
-      operationId: get_movies_bydate
+      operationId: get_schedule_by_date
       parameters:
       - name: date
         in: path

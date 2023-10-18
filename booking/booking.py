@@ -6,34 +6,38 @@ from werkzeug.exceptions import NotFound
 app = Flask(__name__)
 
 PORT = 3201
-HOST = '0.0.0.0'
+HOST = 'localhost'
 
 with open('{}/databases/bookings.json'.format("."), "r") as jsf:
-   bookings = json.load(jsf)["bookings"]
+    bookings = json.load(jsf)["bookings"]
+
 
 @app.route("/", methods=['GET'])
 def home():
-   return make_response("<h1>Test</h1>", 200)
+    return make_response("<h1>Test</h1>", 200)
+
 
 @app.route("/bookings", methods=['GET'])
 def get_json():
-   res = make_response(jsonify(bookings), 200)
-   return res
+    res = make_response(jsonify(bookings), 200)
+    return res
+
 
 @app.route("/bookings/<userid>", methods=['GET'])
 def get_bookings_by_userid(userid):
     for users_info in bookings:
         if str(users_info["userid"]) == str(userid):
-            res = make_response(jsonify(users_info),200)
+            res = make_response(jsonify(users_info), 200)
             return res
-    return make_response(jsonify({"error":"bad input parameter"}),400)
+    return make_response(jsonify({"error": "bad input parameter"}), 400)
+
 
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     req = request.get_json()
     validity = requests.get('http://localhost:3201/bookings/verification', data=req).json()
     if not validity["validity"]:
-        return make_response(jsonify({"error":"schedule doesn't exist"}),400)
+        return make_response(jsonify({"error": "schedule doesn't exist"}), 400)
     user_found = False
 
     for user_bookings in bookings:
@@ -53,19 +57,19 @@ def add_booking(userid):
                     res = make_response(jsonify({"message": "booking added"}), 200)
                     return res
             new_date = {
-                "date":req["date"],
+                "date": req["date"],
                 "movies": [req["movieid"]]
             }
             user_bookings["dates"].append(new_date)
-            res = make_response(jsonify({"message":"booking added"}),200)
+            res = make_response(jsonify({"message": "booking added"}), 200)
     if not user_found:
         print("user_found = false")
         new_date = {
             "date": req["date"],
             "movies": [req["movieid"]]
         }
-        new_user_bookings ={
-            "dates" : [new_date],
+        new_user_bookings = {
+            "dates": [new_date],
             "userid": userid
         }
         bookings.append(new_user_bookings)
@@ -77,7 +81,7 @@ def add_booking(userid):
 def check_booking_validity():
     new_movie = request.get_json()
     print("new_movie", new_movie)
-    schedule = requests.get('http://172.16.132.100:3202/showtimes').json()
+    schedule = requests.get('http://localhost:3202/showtimes').json()
     print(schedule)
     for single_schedule in schedule:
         if single_schedule["date"] == new_movie["date"]:
@@ -85,6 +89,7 @@ def check_booking_validity():
                 if movie == new_movie["movieid"]:
                     return make_response(jsonify({"validity": True}), 200)
     return make_response(jsonify({"validity": False}), 200)
+
 
 """
 {
@@ -103,11 +108,5 @@ def check_booking_validity():
     return False
 """
 if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
-   app.run(host=HOST, port=PORT)
-
-
-
-
-
-
+    print("Server running in port %s" % (PORT))
+    app.run(host=HOST, port=PORT)
