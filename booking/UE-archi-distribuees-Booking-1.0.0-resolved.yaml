@@ -52,7 +52,7 @@ paths:
       - developers
       summary: get the bookings from a user id
       description: By passing in the appropriate options, you can get bookings of a user
-      operationId: get_booking_for_user
+      operationId: get_bookings_by_userid
       parameters:
       - name: userid
         in: path
@@ -76,7 +76,7 @@ paths:
       - admins
       summary: add a booking for a user
       description: Adds a booking for the user, the service showtimes have to be requested to check the validity of the booking that is asked
-      operationId: add_booking_byuser
+      operationId: add_booking
       parameters:
       - name: userid
         in: path
