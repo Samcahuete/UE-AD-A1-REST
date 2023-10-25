@@ -31,6 +31,7 @@ def get_bookings_by_userid(userid):
             return res
     return make_response(jsonify({"error": "bad input parameter"}), 400)
 
+
 def updateDB(bookings):
     with open('{}/databases/bookings.json'.format("."), "w") as wfile:
         formatted_bookings = {
@@ -38,6 +39,7 @@ def updateDB(bookings):
         }
         json.dump(formatted_bookings, wfile)
     return bookings
+
 
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
@@ -58,9 +60,9 @@ def add_booking(userid):
                         if movie == req["movieid"]:
                             return make_response(jsonify({"error": "booking already registered"}), 400)
                     print("avant schedule[movies]", schedule["movies"])
-                    schedule["movies"].append([req["movieid"]])
+                    schedule["movies"].append(req["movieid"])
                     print("après schedule[movies]", schedule["movies"])
-
+                    updateDB(bookings)
                     res = make_response(jsonify({"message": "booking added"}), 200)
                     return res
             new_date = {
@@ -83,6 +85,43 @@ def add_booking(userid):
         res = make_response(jsonify({"message": "new user and booking added"}), 200)
     updateDB(bookings)
     return res
+
+
+@app.route("/bookings/<userid>", methods=['DELETE'])
+def delete_booking(userid):
+    req = request.get_json()
+    user_found = False
+    movie_found = False
+    for user_bookings in bookings:
+        if str(user_bookings["userid"]) == str(userid):
+            user_found = True
+            print("user_found = true")
+            for schedule in user_bookings["dates"]:
+                print(schedule)
+                if schedule["date"] == req["date"]:
+                    print("date trouvée")
+                    for movie in schedule["movies"]:
+                        if movie == req["movieid"]:
+                            movie_found = True
+                if movie_found:
+                    print("avant schedule[movies]", schedule["movies"])
+                    schedule["movies"].remove(req["movieid"])
+                    updateDB(bookings)
+                    print("après schedule[movies]", schedule["movies"])
+                    if len(schedule["movies"]) == 0:
+                        print("ok")
+                        user_bookings["dates"].remove(schedule)
+                        updateDB(bookings)
+                    if len(user_bookings["dates"]) == 0 :
+                        print("ok2")
+                        bookings.remove(user_bookings)
+                        updateDB(bookings)
+                    return make_response(jsonify({"message": "booking deleted"}), 200)
+    if not user_found:
+        print("user_found = false")
+        return make_response(jsonify({"error": "user non existent"}), 400)
+    if not movie_found:
+        return make_response(jsonify({"error": "booking non existent"}), 400)
 
 
 @app.route("/bookings/verification", methods=['GET'])
