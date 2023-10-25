@@ -2,7 +2,7 @@
 openapi: 3.1.0
 info:
   title: Booking API
-  description: This is the API of the Booking service
+  description: This is the API of the Booking service. You can get info about bookings,
   contact:
     email: helene.coullon@imt-atlantique.fr
   license:
@@ -101,6 +101,36 @@ paths:
                 $ref: '#/components/schemas/BookingsUser'
         "409":
           description: an existing item already exists
+    delete:
+      tags:
+        - admins
+      summary: delete a booking for a user
+      description: Deletes a booking for the user
+      operationId: delete_booking
+      parameters:
+        - name: userid
+          in: path
+          description: User ID.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMovie'
+      responses:
+        "200":
+          description: Booking deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsUser'
+        "409":
+          description: non existent user or booking to delete not found
 components:
   schemas:
     AllBookings:
