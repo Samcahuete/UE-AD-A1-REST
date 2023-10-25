@@ -31,11 +31,18 @@ def get_bookings_by_userid(userid):
             return res
     return make_response(jsonify({"error": "bad input parameter"}), 400)
 
+def updateDB(bookings):
+    with open('{}/databases/bookings.json'.format("."), "w") as wfile:
+        formatted_bookings = {
+            "bookings": bookings
+        }
+        json.dump(formatted_bookings, wfile)
+    return bookings
 
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     req = request.get_json()
-    validity = requests.get('http://localhost:3201/bookings/verification', data=req).json()
+    validity = requests.get('http://localhost:3201/bookings/verification', json=req).json()
     if not validity["validity"]:
         return make_response(jsonify({"error": "schedule doesn't exist"}), 400)
     user_found = False
@@ -74,6 +81,7 @@ def add_booking(userid):
         }
         bookings.append(new_user_bookings)
         res = make_response(jsonify({"message": "new user and booking added"}), 200)
+    updateDB(bookings)
     return res
 
 

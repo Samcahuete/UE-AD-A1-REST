@@ -24,12 +24,6 @@ def get_json():
     return res
 
 
-@app.route("/new_endpoint", methods=['GET'])
-def new_endpoint():
-    res = make_response("<h1 style='color:red'>Nouveau point d'entrée</h1>", 200)
-    return res
-
-
 @app.route("/movies/<movieid>", methods=['GET'])
 def get_movie_byid(movieid):
     for movie in movies:
@@ -38,6 +32,13 @@ def get_movie_byid(movieid):
             return res
     return make_response(jsonify({"error": "Movie ID not found"}), 400)
 
+def updateDB(movies):
+    with open('{}/databases/movies.json'.format("."), "w") as wfile:
+        formatted_movies = {
+            "movies": movies
+        }
+        json.dump(formatted_movies, wfile)
+    return movies
 
 @app.route("/movies/<movieid>", methods=['POST'])
 def create_movie(movieid):
@@ -48,6 +49,7 @@ def create_movie(movieid):
             return make_response(jsonify({"error": "movie ID already exists"}), 409)
 
     movies.append(req)
+    updateDB(movies)
     res = make_response(jsonify({"message": "movie added"}), 200)
     return res
 
@@ -67,8 +69,8 @@ def update_movie_rating(movieid, rate):
         if str(movie["id"]) == str(movieid):
             movie["rating"] = rate
             res = make_response(jsonify(movie), 200)
+            updateDB(movies)
             return res
-
     res = make_response(jsonify({"error": "movie ID not found"}), 201)
     return res
 
@@ -78,8 +80,8 @@ def del_movie(movieid):
     for movie in movies:
         if str(movie["id"]) == str(movieid):
             movies.remove(movie)
+            updateDB(movies)
             return make_response(jsonify(movie), 200)
-
     res = make_response(jsonify({"error": "movie ID not found"}), 400)
     return res
 
