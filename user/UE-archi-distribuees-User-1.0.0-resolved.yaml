@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: User API
   summary: This is the API of the User service
-  description: This is the API of the User service. You can get info about users and theirs bookings. Each user is defined by its id, its name and its last active date.
+  description: This is the API of the User service. You can get info about users. Each user is defined by its id, its name and its last active date.
   contact:
     name: Helene Coullon
     url: https://helene-coullon.fr/
