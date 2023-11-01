@@ -1,0 +1,202 @@
+---
+openapi: 3.1.0
+info:
+  title: User API
+  summary: This is the API of the User service
+  description: This is the API of the User service. You can get info about users. Each user is defined by its id, its name and its last active date.
+  contact:
+    name: Helene Coullon
+    url: https://helene-coullon.fr/
+    email: helene.coullon@imt-atlantique.fr
+  license:
+    name: GPL v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+  version: 1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /:
+    get:
+      tags:
+      - developers
+      summary: home page of the service
+      description: |
+        Nothing to do
+      operationId: home
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h1 style='color:blue'>Welcome to the User service!</h1>
+  /users:
+    get:
+      tags:
+      - developers
+      summary: get the full JSON database
+      description: |
+        Nothing to do
+      operationId: get_json
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUsers'
+
+  /users/<userid>:
+    get:
+      tags:
+        -developers
+      summary : get the user data by his id
+      description : By passing in the appropriate option, you can get the name and the last_active date of a user
+      operationId: get_user_by_id
+      parameters:
+        - name : userid
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: bad input parameter
+  /users/bookings/<userid> :
+    get :
+      tags:
+        -developers
+      summary : get the bookings of a user by giving his user id
+      description: By passing the user id, you can get the bookings of this user
+      operationId: get_bookings_by_userid
+      parameters:
+        - name : userid
+          in : path
+          description : User ID
+          required: true
+          schema:
+          type: string
+      responses:
+        "200":
+          description: Bookings of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsUser'
+        "400":
+          description: bad input parameter
+  /users/movies/<userid> :
+    get:
+      tag:
+        -developers
+      summary: get the movies of a user by giving his user id
+      description: By passing the user id, you can get the movies booked of this user
+      operationId: get_movies_by_userid
+      parameters:
+        - name: userid
+          in: path
+          description: User ID
+          required: true
+          schema:
+          type: string
+      responses:
+        "200":
+          description: Movies booked of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movies'
+        "400":
+          description: bad input parameter
+components:
+  schemas:
+    AllUsers:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+
+    User :
+      required :
+        - id
+        - name
+        - last_active
+      type : object
+      properties :
+        id :
+          type : string
+          example : chris_rivers
+        name :
+          type : string
+          example : Chris Rivers
+        last_active :
+          type : int
+          example : 1360031010
+
+    BookingsUser:
+      required:
+        - dates
+        - userid
+      type: object
+      properties:
+        userid:
+          type: string
+          example: chris_rivers
+        dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DateItem'
+    DateItem:
+      required:
+        - date
+        - movies
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movies:
+          type: array
+          items:
+            type: string
+            example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    Movies:
+      type: object
+      required:
+        - movies
+      properties:
+        movies:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/MovieItem'
+    MovieItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab

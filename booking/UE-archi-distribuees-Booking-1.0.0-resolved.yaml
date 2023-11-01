@@ -2,7 +2,7 @@
 openapi: 3.1.0
 info:
   title: Booking API
-  description: This is the API of the Booking service
+  description: This is the API of the Booking service. You can get info about bookings,
   contact:
     email: helene.coullon@imt-atlantique.fr
   license:
@@ -30,7 +30,7 @@ paths:
             text/html:
               schema:
                 type: string
-                example: <h1>Test</h1>
+                example: <h1 style='color:blue'>Welcome to the Booking service!</h1>
   /bookings:
     get:
       tags:
@@ -52,7 +52,7 @@ paths:
       - developers
       summary: get the bookings from a user id
       description: By passing in the appropriate options, you can get bookings of a user
-      operationId: get_booking_for_user
+      operationId: get_bookings_by_userid
       parameters:
       - name: userid
         in: path
@@ -76,7 +76,7 @@ paths:
       - admins
       summary: add a booking for a user
       description: Adds a booking for the user, the service showtimes have to be requested to check the validity of the booking that is asked
-      operationId: add_booking_byuser
+      operationId: add_booking
       parameters:
       - name: userid
         in: path
@@ -101,6 +101,36 @@ paths:
                 $ref: '#/components/schemas/BookingsUser'
         "409":
           description: an existing item already exists
+    delete:
+      tags:
+        - admins
+      summary: delete a booking for a user
+      description: Deletes a booking for the user
+      operationId: delete_booking
+      parameters:
+        - name: userid
+          in: path
+          description: User ID.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMovie'
+      responses:
+        "200":
+          description: Booking deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsUser'
+        "409":
+          description: non existent user or booking to delete not found
 components:
   schemas:
     AllBookings:

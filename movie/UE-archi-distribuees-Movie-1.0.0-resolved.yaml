@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: Movie API
   summary: This is the API of the Movie service
-  description: This is the API of the Movie service, it should be much much much much much much much much much much much much much much much much much much much much much longer
+  description: This the API of the Movie service. You can get info about movies, modify its rating, add or delete a movie from the database. Each movie is represented by its title, its director, its rating and an id.
   contact:
     name: Helene Coullon
     url: https://helene-coullon.fr/
@@ -122,14 +122,14 @@ paths:
           description: item deleted
         "400":
           description: ID not found
-  /titles:
+  /titles/{title}:
     get:
       tags:
       - developers
       summary: get the movie by its title
       description: |
         By passing in the appropriate options, you can get Movie info
-      operationId: get_movie_bytitle
+      operationId: get_movie_by_title
       parameters:
       - name: title
         in: query
