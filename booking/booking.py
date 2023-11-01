@@ -31,15 +31,10 @@ def get_bookings_by_userid(userid):
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     req = request.get_json()
-    print("aaa");
     validity = requests.get('http://localhost:3201/bookings/verification', json=req).json()
-    print("bbb");
     if not validity["validity"]:
         return make_response(jsonify({"error":"schedule doesn't exist"}),400)
-    print("ccc");
     user_found = False
-
-    print("ddd");
     for user_bookings in bookings:
         if str(user_bookings["userid"]) == str(userid):
             user_found = True
