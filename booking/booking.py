@@ -1,6 +1,7 @@
 import json
 import requests
 from flask import Flask, request, jsonify, make_response
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 

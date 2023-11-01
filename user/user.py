@@ -1,12 +1,12 @@
 import json
-
 import requests
 from flask import Flask, jsonify, make_response
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
 PORT = 3203
-HOST = '0.0.0.0'
+HOST = 'localhost'
 
 with open('{}/databases/users.json'.format("."), "r") as jsf:
     users = json.load(jsf)["users"]
@@ -83,5 +83,5 @@ def get_movies_by_userid(userid):
 
 
 if __name__ == "__main__":
-    print("Server running in port %s" % (PORT))
+    print("Server running in port %s" % PORT)
     app.run(host=HOST, port=PORT)
