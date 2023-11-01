@@ -69,21 +69,17 @@ def add_booking(userid):
     if not validity["validity"]:
         return make_response(jsonify({"error": "schedule doesn't exist"}), 400)
     user_found = False
-
     for user_bookings in bookings:
         if str(user_bookings["userid"]) == str(userid):
             user_found = True
-            print("user_found = true")
+            print("User found")
             for schedule in user_bookings["dates"]:
                 if schedule["date"] == req["date"]:
-                    print("date trouvée")
+                    print("date found")
                     for movie in schedule["movies"]:
                         if movie == req["movieid"]:
                             return make_response(jsonify({"error": "booking already registered"}), 400)
-                    print("avant schedule[movies]", schedule["movies"])
-                    schedule["movies"].append(req["movieid"])
-                    print("après schedule[movies]", schedule["movies"])
-                    update_db(bookings)
+                    schedule["movies"].append([req["movieid"]])
                     res = make_response(jsonify({"message": "booking added"}), 200)
                     return res
             new_date = {
@@ -93,7 +89,7 @@ def add_booking(userid):
             user_bookings["dates"].append(new_date)
             res = make_response(jsonify({"message": "booking added"}), 200)
     if not user_found:
-        print("user_found = false")
+        print("User not found")
         new_date = {
             "date": req["date"],
             "movies": [req["movieid"]]
@@ -106,6 +102,7 @@ def add_booking(userid):
         res = make_response(jsonify({"message": "new user and booking added"}), 200)
     update_db(bookings)
     return res
+
 
 
 @app.route("/bookings/<userid>", methods=['DELETE'])
@@ -155,16 +152,14 @@ def check_booking_validity():
         Check a booking validity from the showtime database knowing the movieid and the date
     """
     new_movie = request.get_json()
-    print("new_movie", new_movie)
     schedule = requests.get('http://localhost:3202/showtimes').json()
-    print(schedule)
     for single_schedule in schedule:
         if single_schedule["date"] == new_movie["date"]:
             for movie in single_schedule["movies"]:
                 if movie == new_movie["movieid"]:
                     return make_response(jsonify({"validity": True}), 200)
     return make_response(jsonify({"validity": False}), 200)
-
+  
 
 if __name__ == "__main__":
     print("Server running in port %s" % PORT)

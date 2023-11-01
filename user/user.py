@@ -3,8 +3,8 @@ import requests
 from flask import Flask, jsonify, make_response
 from werkzeug.exceptions import NotFound
 
-app = Flask(__name__)
 
+app = Flask(__name__)
 PORT = 3203
 HOST = 'localhost'
 
@@ -18,7 +18,6 @@ def home():
         Returns the home page of the user service
     """
     return make_response("<h1 style='color:blue'>Welcome to the User service!</h1>", 200)
-
 
 @app.route("/users", methods=['GET'])
 def get_json():
@@ -42,7 +41,7 @@ def get_user_by_id(userid):
     return make_response(jsonify({"error": "bad input parameter"}), 400)
 
 
-@app.route("/users/bookings/<userid>", methods=['GET', 'POST'])
+@app.route("/users/bookings/<userid>", methods=['GET'])
 def get_bookings_by_userid(userid):
     """
         Returns the bookings of a user from the bookings database knowing the userid
@@ -61,18 +60,14 @@ def get_movies_by_userid(userid):
         param : a string userid
         return : the movies information requested on a json format
     """
-    print("userid", userid)
     user_bookings_request = requests.get('http://localhost:3203/users/bookings/' + userid)
     user_bookings = user_bookings_request.json()
-    print("user_bookings", user_bookings)
     if user_bookings_request.status_code == 200:
         moviesInfo = {
             "movies": []
         }
         for booking in user_bookings:
             for movieid in booking["movies"]:
-                print("movieid", movieid)
-                print('http://localhost:3200/movies/' + movieid)
                 movie_request = requests.get('http://localhost:3200/movies/' + movieid)
                 movie = movie_request.json()
                 if movie_request.status_code == 200:
