@@ -1,6 +1,6 @@
 import json
 import requests
-from flask import Flask, jsonify, make_response
+from flask import Flask, request, jsonify, make_response
 from werkzeug.exceptions import NotFound
 
 
@@ -10,6 +10,20 @@ HOST = 'localhost'
 
 with open('{}/databases/users.json'.format("."), "r") as jsf:
     users = json.load(jsf)["users"]
+
+
+def update_db(users_db):
+    """
+        Returns the users database updated
+        param : the database to update
+        return : the database on a json format
+    """
+    with open('{}/databases/users.json'.format("."), "w") as wfile:
+        formatted_users = {
+            "users": users_db
+        }
+        json.dump(formatted_users, wfile)
+    return users_db
 
 
 @app.route("/", methods=['GET'])
@@ -39,6 +53,42 @@ def get_user_by_id(userid):
             res = make_response(jsonify(user), 200)
             return res
     return make_response(jsonify({"error": "bad input parameter"}), 400)
+
+
+@app.route("/users/<userid>", methods=['POST'])
+def add_user(userid):
+    """
+        Add a user to the database if it doesn't already exist
+        param : a string userid
+    """
+    user_req = request.get_json()
+    if user_req["id"] != userid:
+        res = make_response(jsonify({"error": f"the userid specified in the url ({userid}) "
+                                              f"doesn't match with the one given in the body ({user_req['id']})"}), 400)
+        return res
+    for user in users:
+        if str(user["id"]) == str(userid):
+            res = make_response(jsonify({"error": f"user {userid} already exists"}), 400)
+            return res
+    users.append(user_req)
+    update_db(users)
+    return make_response(jsonify({"message": f"user {userid} added"}), 200)
+
+
+@app.route("/users/<userid>", methods=['DELETE'])
+def delete_user(userid):
+    """
+        Delete a user given its id and all its bookings
+        param : a string userid
+    """
+    for user in users:
+        if str(user["id"]) == str(userid):
+            requests.delete(f"http://localhost:3201/bookings/delete_multiple/{userid}")
+            users.remove(user)
+            update_db(users)
+            res = make_response(jsonify({"message": f"user {userid} deleted"}), 200)
+            return res
+    return make_response(jsonify({"error": f"user {userid} not found"}), 400)
 
 
 @app.route("/users/bookings/<userid>", methods=['GET'])
