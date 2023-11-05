@@ -12,6 +12,20 @@ with open('{}/databases/bookings.json'.format("."), "r") as jsf:
     bookings = json.load(jsf)["bookings"]
 
 
+def update_db(bookings_db):
+    """
+        Returns the bookings database updated
+        param : the database to update
+        return : the database on a json format
+    """
+    with open('{}/databases/bookings.json'.format("."), "w") as wfile:
+        formatted_bookings = {
+            "bookings": bookings_db
+        }
+        json.dump(formatted_bookings, wfile)
+    return bookings_db
+
+
 @app.route("/", methods=['GET'])
 def home():
     """
@@ -43,20 +57,6 @@ def get_bookings_by_userid(userid):
     return make_response(jsonify({"error": "bad input parameter"}), 400)
 
 
-def update_db(bookings_db):
-    """
-        Returns the bookings database updated
-        param : the database to update
-        return : the database on a json format
-    """
-    with open('{}/databases/bookings.json'.format("."), "w") as wfile:
-        formatted_bookings = {
-            "bookings": bookings_db
-        }
-        json.dump(formatted_bookings, wfile)
-    return bookings_db
-
-
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking(userid):
     """
@@ -66,8 +66,11 @@ def add_booking(userid):
     """
     req = request.get_json()
     validity = requests.get('http://localhost:3201/bookings/verification', json=req).json()
+    user_existence_response = requests.get(f'http://localhost:3203//users/{userid}')
     if not validity["validity"]:
         return make_response(jsonify({"error": "schedule doesn't exist"}), 400)
+    if user_existence_response.status_code !=200:
+        return make_response(jsonify({"error": "user not found"}), 400)
     user_found = False
     for user_bookings in bookings:
         if str(user_bookings["userid"]) == str(userid):
@@ -104,7 +107,6 @@ def add_booking(userid):
     return res
 
 
-
 @app.route("/bookings/<userid>", methods=['DELETE'])
 def delete_booking(userid):
     """
@@ -126,25 +128,34 @@ def delete_booking(userid):
                         if movie == req["movieid"]:
                             movie_found = True
                 if movie_found:
-                    print("avant schedule[movies]", schedule["movies"])
                     schedule["movies"].remove(req["movieid"])
                     update_db(bookings)
-                    print("après schedule[movies]", schedule["movies"])
                     if len(schedule["movies"]) == 0:
-                        print("ok")
                         user_bookings["dates"].remove(schedule)
                         update_db(bookings)
                     if len(user_bookings["dates"]) == 0:
-                        print("ok2")
                         bookings.remove(user_bookings)
                         update_db(bookings)
                     return make_response(jsonify({"message": "booking deleted"}), 200)
     if not user_found:
-        print("user_found = false")
+        print("user not found")
         return make_response(jsonify({"error": "user non existent"}), 400)
     if not movie_found:
         return make_response(jsonify({"error": "booking non existent"}), 400)
 
+
+@app.route("/bookings/delete_multiple/<userid>", methods=['DELETE'])
+def delete_all_bookings(userid):
+    """
+        Delete all the bookings of the given user (id) from the bookings database
+        param : a string userid
+    """
+    for user_bookings in bookings:
+        if str(user_bookings["userid"]) == str(userid):
+            bookings.remove(user_bookings)
+            update_db(bookings)
+            return make_response(jsonify({"message": "all bookings deleted"}), 200)
+    return make_response(jsonify({"error": "Aucun booking associé à ce user"}), 400)
 
 @app.route("/bookings/verification", methods=['GET'])
 def check_booking_validity():
@@ -152,14 +163,15 @@ def check_booking_validity():
         Check a booking validity from the showtime database knowing the movieid and the date
     """
     new_movie = request.get_json()
-    schedule = requests.get('http://localhost:3202/showtimes').json()
-    for single_schedule in schedule:
-        if single_schedule["date"] == new_movie["date"]:
-            for movie in single_schedule["movies"]:
-                if movie == new_movie["movieid"]:
-                    return make_response(jsonify({"validity": True}), 200)
-    return make_response(jsonify({"validity": False}), 200)
-  
+    check_date_existence = requests.get(f'http://localhost:3202/showmovies/{new_movie["date"]}')
+    if check_date_existence.status_code == 200:
+        movies_available = check_date_existence.json()["movies"]
+        if new_movie["movieid"] in movies_available:
+            return make_response(jsonify({"validity": True}), 200)
+    if check_date_existence.status_code == 400:
+        return make_response(jsonify({"validity": False}), 200)
+    return make_response(jsonify({"error": "Une erreur s'est produite lors de l'appel au service showtimes."
+                                           f"code d'erreur: {check_date_existence.status_code}"}), 400)
 
 if __name__ == "__main__":
     print("Server running in port %s" % PORT)
