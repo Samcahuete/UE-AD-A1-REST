@@ -49,7 +49,7 @@ def get_user_by_id(userid):
         param : a string userid
     """
     for user in users:
-        if str(user["id"]) == str(userid):
+        if user["id"] == userid:
             res = make_response(jsonify(user), 200)
             return res
     return make_response(jsonify({"error": "bad input parameter"}), 400)
@@ -67,7 +67,7 @@ def add_user(userid):
                                               f"doesn't match with the one given in the body ({user_req['id']})"}), 400)
         return res
     for user in users:
-        if str(user["id"]) == str(userid):
+        if user["id"] == userid:
             res = make_response(jsonify({"error": f"user {userid} already exists"}), 400)
             return res
     users.append(user_req)
@@ -82,13 +82,13 @@ def delete_user(userid):
         param : a string userid
     """
     for user in users:
-        if str(user["id"]) == str(userid):
+        if user["id"] == userid:
             requests.delete(f"http://localhost:3201/bookings/delete_multiple/{userid}")
             users.remove(user)
             update_db(users)
             res = make_response(jsonify({"message": f"user {userid} deleted"}), 200)
             return res
-    return make_response(jsonify({"error": f"user {userid} not found"}), 400)
+    return make_response(jsonify({"error": f"non existent user {userid} "}), 400)
 
 
 @app.route("/users/bookings/<userid>", methods=['GET'])
@@ -119,9 +119,8 @@ def get_movies_by_userid(userid):
         for booking in user_bookings:
             for movieid in booking["movies"]:
                 movie_request = requests.get('http://localhost:3200/movies/' + movieid)
-                movie = movie_request.json()
                 if movie_request.status_code == 200:
-                    print("movie", movie)
+                    movie = movie_request.json()
                     moviesInfo["movies"].append(movie)
         return make_response(jsonify(moviesInfo), 200)
     return make_response(jsonify({"error": "no booking found for user" + userid}), 400)
