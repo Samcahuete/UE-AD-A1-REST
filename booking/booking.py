@@ -82,8 +82,9 @@ def add_booking(userid):
                     for movie in schedule["movies"]:
                         if movie == req["movieid"]:
                             return make_response(jsonify({"error": "booking already registered"}), 400)
-                    schedule["movies"].append([req["movieid"]])
+                    schedule["movies"].append(req["movieid"])
                     res = make_response(jsonify({"message": "booking added"}), 200)
+                    update_db(bookings)
                     return res
             new_date = {
                 "date": req["date"],
