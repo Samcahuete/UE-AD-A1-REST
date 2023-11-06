@@ -98,7 +98,7 @@ def update_movie_rating(movieid, rate):
     """
     for movie in movies:
         if str(movie["id"]) == str(movieid):
-            movie["rating"] = rate
+            movie["rating"] = float(rate)
             res = make_response(jsonify(movie), 200)
             update_db(movies)
             return res
