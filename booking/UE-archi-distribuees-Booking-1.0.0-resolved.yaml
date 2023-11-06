@@ -131,6 +131,28 @@ paths:
                 $ref: '#/components/schemas/BookingsUser'
         "400":
           description: non existent user or booking to delete not found
+  /bookings/verification:
+    get:
+      tags:
+        - developers
+      summary: Verifies if the schedule is valid
+      description: By passing in the appropriate options, you can get the validity of a schedule
+      operationId: check_booking_validity
+      requestBody:
+        description: schedule to verify
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMovie'
+      responses:
+        "200":
+          description: Bookings of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleValidity'
+        "400":
+          description: Une erreur s'est produite lors de l'appel au service showtimes
 components:
   schemas:
     AllBookings:
@@ -150,6 +172,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DateItem'
+    ScheduleValidity:
+      required:
+        - validity
+      type: object
+      properties:
+        validity:
+          type: boolean
     DateItem:
       required:
       - date
