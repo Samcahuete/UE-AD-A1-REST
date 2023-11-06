@@ -139,9 +139,9 @@ def delete_booking(userid):
                     return make_response(jsonify({"message": "booking deleted"}), 200)
     if not user_found:
         print("user not found")
-        return make_response(jsonify({"error": "user non existent"}), 400)
+        return make_response(jsonify({"error": "non existent user"}), 400)
     if not movie_found:
-        return make_response(jsonify({"error": "booking non existent"}), 400)
+        return make_response(jsonify({"error": "booking to delete not found"}), 400)
 
 
 @app.route("/bookings/delete_multiple/<userid>", methods=['DELETE'])

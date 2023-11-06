@@ -99,12 +99,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingsUser'
-        "409":
+        "400":
           description: an existing item already exists
     delete:
       tags:
         - admins
-      summary: delete a booking for a user
+      summary: Deletes a booking for a user
       description: Deletes a booking for the user
       operationId: delete_booking
       parameters:
@@ -129,7 +129,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingsUser'
-        "409":
+        "400":
           description: non existent user or booking to delete not found
 components:
   schemas:

@@ -88,7 +88,7 @@ def delete_user(userid):
             update_db(users)
             res = make_response(jsonify({"message": f"user {userid} deleted"}), 200)
             return res
-    return make_response(jsonify({"error": f"user {userid} not found"}), 400)
+    return make_response(jsonify({"error": f"non existent user {userid} "}), 400)
 
 
 @app.route("/users/bookings/<userid>", methods=['GET'])

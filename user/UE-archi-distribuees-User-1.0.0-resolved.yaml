@@ -73,6 +73,59 @@ paths:
                 $ref: '#/components/schemas/User'
         "400":
           description: bad input parameter
+    post:
+      tags:
+        -admin
+      summary: add a new user to the database
+      description: By passing in the appropriate option, you can add a new user to the database
+      operationId: add_user
+      parameters:
+        - name: userid
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "200":
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: bad input parameter or user already exists
+    delete:
+      tags:
+        - admins
+      summary: Deletes a user and its bookings
+      description: Deletes a user from the database and its bookings
+      operationId: delete_user
+      parameters:
+        - name: userid
+          in: path
+          description: User ID.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: user deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsUser'
+        "400":
+          description: non existent user
+
   /users/bookings/<userid> :
     get :
       tags:
